@@ -1,21 +1,46 @@
-"use client"
-
-import { useState } from "react"
+import React, { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { Eye, EyeOff, Facebook } from 'lucide-react'
+// Asegúrate de que Button esté bien definido o reemplázalo con <button>
 import { Button } from "../../components/ui/button"
 
 export default function LoginPage() {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log("Login attempt with:", email, password)
+    setError("")
+
+    if (!email || !password) {
+      setError("Please email y password")
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      if (email === "user@example.com" && password === "password") {
+        navigate("/pyme/dashboard")
+      } else {
+        setError("Error in credentials")
+      }
+    } catch (err) {
+      console.error(err)
+      setError("Ocurrió un error durante el login")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -25,13 +50,17 @@ export default function LoginPage() {
       </div>
 
       <div className="relative flex-1 bg-white">
-        <div className="absolute top-0 left-0 right-0 h-16 bg-transparent">
-          <div className="absolute top-0 left-0 right-0 h-16 bg-white rounded-t-[50%] transform translate-y-[-8px]"></div>
-        </div>
+        <div className="absolute top-0 left-0 right-0 h-16 bg-white rounded-t-[50%] transform translate-y-[-8px]" />
 
         <div className="flex flex-col items-center px-8 pt-12 pb-8">
           <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
-            <div className="space-y-2">
+            {error && (
+              <div className="p-3 bg-red-100 text-red-700 rounded-full text-center">
+                {error}
+              </div>
+            )}
+
+            <div>
               <label htmlFor="email" className="block text-gray-800 font-medium">
                 Email
               </label>
@@ -42,10 +71,11 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="example@example.com"
                 className="w-full px-4 py-3 rounded-full bg-[#e8f8e8] text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#4ecca6]"
+                disabled={isLoading}
               />
             </div>
 
-            <div className="space-y-2">
+            <div>
               <label htmlFor="password" className="block text-gray-800 font-medium">
                 Password
               </label>
@@ -57,11 +87,13 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="w-full px-4 py-3 rounded-full bg-[#e8f8e8] text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#4ecca6]"
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={togglePasswordVisibility}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                  disabled={isLoading}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -72,8 +104,9 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 className="w-full py-3 px-4 bg-[#4ecca6] text-gray-800 rounded-full font-medium text-lg hover:bg-[#3dbb95] transition-colors"
+                disabled={isLoading}
               >
-                Log In
+                {isLoading ? "Cargando..." : "Log In"}
               </Button>
             </div>
 
@@ -86,8 +119,9 @@ export default function LoginPage() {
             <div className="pt-2">
               <Button
                 type="button"
-                variant="outline"
-                className="w-full py-3 px-4 bg-[#e8f8e8] text-gray-800 rounded-full font-medium text-lg hover:bg-[#d8f0d8] border-none transition-colors"
+                className="w-full py-3 px-4 bg-[#e8f8e8] text-gray-800 rounded-full font-medium text-lg hover:bg-[#d8f0d8] transition-colors"
+                onClick={() => navigate("/signup")}
+                disabled={isLoading}
               >
                 Sign Up
               </Button>
@@ -105,12 +139,14 @@ export default function LoginPage() {
                 <button
                   type="button"
                   className="p-2 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors"
+                  disabled={isLoading}
                 >
                   <Facebook className="w-6 h-6 text-gray-700" />
                 </button>
                 <button
                   type="button"
                   className="p-2 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors"
+                  disabled={isLoading}
                 >
                   <GoogleIcon className="w-6 h-6" />
                 </button>

@@ -280,7 +280,7 @@ export default function FiscalDashboard() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <FileSpreadsheet className="h-5 w-5 text-emerald-600" />
-                      <span className="font-medium">Declaración Mensual ISR (Abril 2023)</span>
+                      <span className="font-medium">Declaración Mensual  (Abril 2023)</span>
                     </div>
                     <button className="text-sm px-3 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700">
                       Generar
@@ -291,11 +291,13 @@ export default function FiscalDashboard() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <FileSpreadsheet className="h-5 w-5 text-emerald-600" />
-                      <span className="font-medium">Declaración IVA (Abril 2023)</span>
+                      <span className="font-medium">Declaración  (Abril 2024)</span>
                     </div>
+                    <a href="/process">
                     <button className="text-sm px-3 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700">
                       Generar
                     </button>
+                    </a>
                   </div>
                 </div>
                 <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
