@@ -16,10 +16,24 @@ def api_root(request):
         }
     })
 
-from .models import Transaction
+from rest_framework import generics, permissions
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from .serializers import TransactionSerializer
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+class TransactionListView(generics.ListAPIView):
+    serializer_class = TransactionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+
+    def get_queryset(self):
+        return Transaction.objects.filter(user=self.request.user).order_by('-date')
 
 class ExcelUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
 
     def post(self, request, format=None):
         form = ExcelUploadForm(request.POST, request.FILES)
@@ -35,10 +49,24 @@ class ExcelUploadView(APIView):
                 errors = []
                 for idx, row in df.iterrows():
                     try:
+                        # Validate date
+                        try:
+                            date_val = pd.to_datetime(row['date']).date()
+                        except Exception:
+                            raise ValueError('Invalid date format')
+                        # Validate amount
+                        try:
+                            amount_val = float(row['amount'])
+                        except Exception:
+                            raise ValueError('Invalid amount format')
+                        # Check for duplicates (same user, date, description, amount)
+                        if Transaction.objects.filter(user=request.user, date=date_val, description=str(row['description']), amount=amount_val).exists():
+                            raise ValueError('Duplicate transaction')
                         transaction = Transaction(
-                            date=pd.to_datetime(row['date']).date(),
+                            user=request.user,
+                            date=date_val,
                             description=str(row['description']),
-                            amount=float(row['amount']),
+                            amount=amount_val,
                             account=row.get('account', None),
                             category=row.get('category', None),
                         )
